@@ -1,0 +1,17 @@
+export const signature_keywords = [
+  `account`,
+  `addressOf`,
+  `balance`,
+  `coin`,
+  `dao`,
+  `ico`,
+  `mint`,
+  `spend`,
+  `supply`,
+  `transfer`,
+  `value`,
+  `vault`,
+  `wallet`,
+  `withdrawal`,
+  `token`,
+];

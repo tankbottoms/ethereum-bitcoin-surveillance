@@ -1,0 +1,7 @@
+# Ignore artifacts:
+.vscode
+abi
+docs
+node_modules
+scripts
+./src/p-queue/index.ts 

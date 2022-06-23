@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# yarn run test
+echo 'disabling running tests'
+echo 'removing temporary log files'
+rm -rf *.log
+echo 'removing temporary job files'
+# [[ -f .current_job.json ]] || rm -v .current_job.json
+# [[ -f .job_history.json ]] || rm -v .job_history.json

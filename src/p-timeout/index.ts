@@ -1,0 +1,74 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+export class TimeoutError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = 'TimeoutError';
+  }
+}
+
+// @ts-ignore
+export default function pTimeout(promise, milliseconds, fallback, options) {
+  // @ts-ignore
+  let timer;
+  const cancelablePromise = new Promise((resolve, reject) => {
+    if (typeof milliseconds !== 'number' || milliseconds < 0) {
+      throw new TypeError('Expected `milliseconds` to be a positive number');
+    }
+
+    if (milliseconds === Number.POSITIVE_INFINITY) {
+      resolve(promise);
+      return;
+    }
+
+    // eslint-disable-next-line no-param-reassign
+    options = {
+      customTimers: { setTimeout, clearTimeout },
+      ...options,
+    };
+
+    timer = options.customTimers.setTimeout.call(
+      undefined,
+      () => {
+        if (typeof fallback === 'function') {
+          try {
+            resolve(fallback());
+          } catch (error) {
+            reject(error);
+          }
+
+          return;
+        }
+
+        const message =
+          typeof fallback === 'string' ? fallback : `Promise timed out after ${milliseconds} milliseconds`;
+        const timeoutError = fallback instanceof Error ? fallback : new TimeoutError(message);
+
+        if (typeof promise.cancel === 'function') {
+          promise.cancel();
+        }
+
+        reject(timeoutError);
+      },
+      milliseconds,
+    );
+
+    (async () => {
+      try {
+        resolve(await promise);
+      } catch (error) {
+        reject(error);
+      } finally {
+        options.customTimers.clearTimeout.call(undefined, timer);
+      }
+    })();
+  });
+
+  // @ts-ignore
+  cancelablePromise.clear = () => {
+    // @ts-ignore
+    clearTimeout(timer);
+    timer = undefined;
+  };
+
+  return cancelablePromise;
+}
